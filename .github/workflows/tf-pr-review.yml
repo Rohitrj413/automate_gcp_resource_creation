@@ -1,0 +1,59 @@
+name: "Terraform PR Review with LLM"
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - '**/*.tf'
+
+jobs:
+  tf-review:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          pip install python-hcl2 google-cloud-aiplatform
+
+      - name: Authenticate with Google Cloud
+        id: 'auth'
+        uses: 'google-github-actions/auth@v2'
+        with:
+          credentials_json: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
+
+      - name: Generate summary
+        id: generate
+        run: |
+          python ./scripts/generate_summary.py
+        env:
+          GOOGLE_CLOUD_PROJECT: ${{ secrets.GCP_PROJECT_ID }}
+          # The script will use the credentials from the 'auth' step
+      
+      - name: Post comment to PR
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const summary = process.env.SUMMARY;
+            const fullComment = `
+            ### Terraform PR Review
+
+            **Summary of Changes:**
+            ${summary}
+            `;
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: fullComment
+            })
