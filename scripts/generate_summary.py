@@ -33,7 +33,7 @@ def get_llm_summary(resources):
         # Initialize the Vertex AI client
         aiplatform.init(
             project=os.environ['GOOGLE_CLOUD_PROJECT'],
-            location='us-central1'  # Choose your desired region
+            location='us-east4'  # Choose your desired region
         )
         
         # Use the GenerativeModel class for Gemini
