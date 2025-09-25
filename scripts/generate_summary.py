@@ -4,6 +4,8 @@ import hcl2
 from google.cloud import aiplatform
 from subprocess import run, CalledProcessError, PIPE
 
+print(f"Vertex AI library version: {aiplatform.__version__}")
+
 # 1. Parse Terraform code from the current directory
 def parse_terraform_code(path="."):
     resources = []
@@ -37,7 +39,7 @@ def get_llm_summary(resources):
         )
         
         # Use the GenerativeModel class for Gemini
-        model = aiplatform.GenerativeModel("gemini-1.5-pro-preview-0409")
+        model = aiplatform.GenerativeModel("gemini-1.0-pro")
 
         # Create a detailed prompt for the LLM
         prompt = f"""
