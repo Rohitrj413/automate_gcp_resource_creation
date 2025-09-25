@@ -24,7 +24,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install --upgrade python-hcl2 google-cloud-aiplatform
+          pip install --upgrade python-hcl2 google-cloud-aiplatform==1.57.0
 
       - name: Authenticate with Google Cloud
         id: 'auth'
