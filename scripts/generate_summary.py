@@ -1,7 +1,8 @@
 import os
 import json
 import hcl2
-from google.cloud import aiplatform
+from google import genai
+from google.genai import types
 from subprocess import run, CalledProcessError, PIPE
 
 def parse_terraform_code(path="."):
@@ -27,12 +28,10 @@ def parse_terraform_code(path="."):
 
 def get_llm_summary(resources):
     try:
-        aiplatform.init(
-            project=os.environ['GOOGLE_CLOUD_PROJECT'],
-            location='us-central1'  
-        )
+        # *** INITIALIZATION FOR GOOGLE-GENAI ***
+        client = genai.Client()
         
-        model = aiplatform.GenerativeModel("gemini-2.5-flash")
+        model_name = "gemini-pro"
 
         prompt = f"""
         You are a cloud infrastructure expert. Your task is to generate a concise summary of the following Terraform code changes. The summary should be easy for a human to understand and should highlight the resources being created and their key configuration details.
@@ -44,10 +43,15 @@ def get_llm_summary(resources):
         Generate the summary in a clear, bulleted list format.
         """
 
-        response = model.generate_content(prompt)
+        # Generate content using the new client method
+        response = client.models.generate_content(
+            model=model_name,
+            contents=prompt,
+        )
+        
         return response.text.strip()
     except Exception as e:
-        return f"LLM summarization failed: {e}"
+        return f"LLM summarization failed: {type(e).__name__}: {e}"
 
 def main():
     # 1. Parse Terraform files
