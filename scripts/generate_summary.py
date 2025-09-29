@@ -37,11 +37,11 @@ def get_llm_summary(resources):
         # This automatically uses the Service Account credentials provided by the GitHub Action
         aiplatform.init(
             project=os.environ['GOOGLE_CLOUD_PROJECT'],
-            location='us-central1'  # Ensure this region supports Gemini 2.5
+            location='us-east4'
         )
         
         # 2. Instantiate the Generative Model (using the correct import)
-        model = GenerativeModel("gemini-pro")
+        model = GenerativeModel("gemini-2.5-flash")
 
         # Create a detailed prompt for the LLM
         prompt = f"""
