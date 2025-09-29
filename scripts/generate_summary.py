@@ -41,8 +41,7 @@ def get_llm_summary(resources):
         )
         
         # 2. Instantiate the Generative Model (using the correct import)
-        # 'gemini-2.5-flash' is the model ID in Vertex AI
-        model = GenerativeModel("gemini-2.5-flash")
+        model = GenerativeModel("gemini-pro")
 
         # Create a detailed prompt for the LLM
         prompt = f"""
