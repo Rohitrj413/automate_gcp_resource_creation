@@ -3,6 +3,7 @@ import json
 import hcl2
 # *** NEW IMPORTS FOR VERTEX AI ***
 from google.cloud import aiplatform
+import vertexai 
 from vertexai.generative_models import GenerativeModel, Content, Part, Tool, FunctionDeclaration, GenerationConfig
 from subprocess import run, CalledProcessError, PIPE
 
@@ -35,7 +36,7 @@ def get_llm_summary(resources):
     try:
         # 1. Initialize Vertex AI
         # This automatically uses the Service Account credentials provided by the GitHub Action
-        aiplatform.init(
+        vertexai.init(
             project=os.environ['GOOGLE_CLOUD_PROJECT'],
             location='us-east4'
         )
