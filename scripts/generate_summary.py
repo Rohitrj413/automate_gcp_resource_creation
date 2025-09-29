@@ -1,12 +1,14 @@
 import os
 import json
 import hcl2
-from google import genai
-from google.genai import types
+# *** NEW IMPORTS FOR VERTEX AI ***
+from google.cloud import aiplatform
+from vertexai.generative_models import GenerativeModel, Content, Part, Tool, FunctionDeclaration, GenerationConfig
 from subprocess import run, CalledProcessError, PIPE
 
 def parse_terraform_code(path="."):
     resources = []
+    # ... (rest of your parsing logic remains the same)
     for root, _, files in os.walk(path):
         for file in files:
             if file.endswith('.tf'):
@@ -15,24 +17,34 @@ def parse_terraform_code(path="."):
                     try:
                         parsed_content = hcl2.load(f)
                         if 'resource' in parsed_content:
-                            for resource_type, resource_blocks in parsed_content['resource'][0].items():
-                                for resource_name, attributes in resource_blocks.items():
-                                    resources.append({
-                                        'type': resource_type,
-                                        'name': resource_name,
-                                        'attributes': attributes[0]
-                                    })
+                            # Handling hcl2 structure to flatten resources
+                            for resource_block in parsed_content.get('resource', []):
+                                for resource_type, resource_blocks in resource_block.items():
+                                    for resource_name, attributes in resource_blocks.items():
+                                        resources.append({
+                                            'type': resource_type,
+                                            'name': resource_name,
+                                            'attributes': attributes[0]
+                                        })
                     except Exception as e:
+                        # Improved error handling for parsing
                         print(f"Error parsing {filepath}: {e}")
     return resources
 
 def get_llm_summary(resources):
     try:
-        # *** INITIALIZATION FOR GOOGLE-GENAI ***
-        client = genai.Client()
+        # 1. Initialize Vertex AI
+        # This automatically uses the Service Account credentials provided by the GitHub Action
+        aiplatform.init(
+            project=os.environ['GOOGLE_CLOUD_PROJECT'],
+            location='us-central1'  # Ensure this region supports Gemini 2.5
+        )
         
-        model_name = "gemini-pro"
+        # 2. Instantiate the Generative Model (using the correct import)
+        # 'gemini-2.5-flash' is the model ID in Vertex AI
+        model = GenerativeModel("gemini-2.5-flash")
 
+        # Create a detailed prompt for the LLM
         prompt = f"""
         You are a cloud infrastructure expert. Your task is to generate a concise summary of the following Terraform code changes. The summary should be easy for a human to understand and should highlight the resources being created and their key configuration details.
 
@@ -43,17 +55,18 @@ def get_llm_summary(resources):
         Generate the summary in a clear, bulleted list format.
         """
 
-        # Generate content using the new client method
-        response = client.models.generate_content(
-            model=model_name,
-            contents=prompt,
-        )
-        
+        # Generate the content and return the text
+        response = model.generate_content(prompt)
         return response.text.strip()
+        
     except Exception as e:
         return f"LLM summarization failed: {type(e).__name__}: {e}"
 
 def main():
+    # Set a dummy project ID if running locally for testing, but rely on env in CI
+    if 'GOOGLE_CLOUD_PROJECT' not in os.environ:
+         os.environ['GOOGLE_CLOUD_PROJECT'] = 'your-gcp-project-id' 
+
     # 1. Parse Terraform files
     resources_data = parse_terraform_code()
     
