@@ -62,9 +62,6 @@ def get_llm_summary(resources):
         return f"LLM summarization failed: {type(e).__name__}: {e}"
 
 def main():
-    # Set a dummy project ID if running locally for testing, but rely on env in CI
-    if 'GOOGLE_CLOUD_PROJECT' not in os.environ:
-         os.environ['GOOGLE_CLOUD_PROJECT'] = 'your-gcp-project-id' 
 
     # 1. Parse Terraform files
     resources_data = parse_terraform_code()
