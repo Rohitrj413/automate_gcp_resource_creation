@@ -1,4 +1,4 @@
-name: "Terraform PR Review with LLM"
+name: "Terraform PR Review with Vertex AI Gemini"
 
 on:
   pull_request:
@@ -20,33 +20,41 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.10'
+          python-version: '3.11'
 
       - name: Install dependencies
         run: |
-          pip install --upgrade python-hcl2 google-cloud-aiplatform
+          # Install the specific Vertex AI package version as requested
+          pip3 install --upgrade "google-cloud-aiplatform>=1.38" python-hcl2
+          # Also install the necessary auth library for the SDK
+          pip3 install google-auth
+          # Ensure this environment variable is set for the SDK
+          echo "GOOGLE_CLOUD_PROJECT=${{ secrets.GCP_PROJECT_ID }}" >> $GITHUB_ENV
 
       - name: Authenticate with Google Cloud
         id: 'auth'
         uses: 'google-github-actions/auth@v2'
         with:
+          # Use your GCP Service Account secret for secure authentication
           credentials_json: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
+          # The service account must have the 'Vertex AI User' role on the project
 
       - name: Generate summary
         id: generate
         run: |
+          # Run the Python script
           python ./scripts/generate_summary.py
         env:
-          GOOGLE_CLOUD_PROJECT: ${{ secrets.GCP_PROJECT_ID }}
-          # The script will use the credentials from the 'auth' step
-      
+          # The GCP_PROJECT_ID is now set in the environment step above
+          # NO GEMINI_API_KEY IS NEEDED HERE!
+
       - name: Post comment to PR
         uses: actions/github-script@v6
         with:
           script: |
             const summary = process.env.SUMMARY;
             const fullComment = `
-            ### Terraform PR Review
+            ### Terraform PR Review (Vertex AI)
 
             **Summary of Changes:**
             ${summary}
