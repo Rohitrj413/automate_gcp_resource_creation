@@ -28,8 +28,6 @@ jobs:
           pip3 install --upgrade "google-cloud-aiplatform>=1.38" python-hcl2
           # Also install the necessary auth library for the SDK
           pip3 install google-auth
-          # Ensure this environment variable is set for the SDK
-          echo "GOOGLE_CLOUD_PROJECT=${{ secrets.GCP_PROJECT_ID }}" >> $GITHUB_ENV
 
       - name: Authenticate with Google Cloud
         id: 'auth'
@@ -45,8 +43,7 @@ jobs:
           # Run the Python script
           python ./scripts/generate_summary.py
         env:
-          # The GCP_PROJECT_ID is now set in the environment step above
-          # NO GEMINI_API_KEY IS NEEDED HERE!
+          GOOGLE_CLOUD_PROJECT: ${{ secrets.GCP_PROJECT_ID }}
 
       - name: Post comment to PR
         uses: actions/github-script@v6
