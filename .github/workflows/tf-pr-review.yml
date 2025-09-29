@@ -41,8 +41,7 @@ jobs:
         id: generate
         run: |
           # Run the Python script
-          LLM_OUTPUT=$(python ./scripts/generate_summary.py)
-          echo "${LLM_OUTPUT}" >> $GITHUB_ENV
+           python ./scripts/generate_summary.py
         env:
           GOOGLE_CLOUD_PROJECT: ${{ secrets.GCP_PROJECT_ID }}
 
