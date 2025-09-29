@@ -2,7 +2,6 @@ import os
 import json
 import hcl2
 # *** NEW IMPORTS FOR VERTEX AI ***
-from google.cloud import aiplatform
 import vertexai 
 from vertexai.generative_models import GenerativeModel, Content, Part, Tool, FunctionDeclaration, GenerationConfig
 from subprocess import run, CalledProcessError, PIPE
@@ -42,7 +41,7 @@ def get_llm_summary(resources):
         )
         
         # 2. Instantiate the Generative Model (using the correct import)
-        model = GenerativeModel("gemini-2.5-flash")
+        model = GenerativeModel("gemini-2.0-flash")
 
         # Create a detailed prompt for the LLM
         prompt = f"""
