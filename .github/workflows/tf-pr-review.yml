@@ -72,8 +72,8 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
-            // CRITICAL: Access the output using the steps context
-            const summary = `${{ steps.generate.outputs.summary_output }}`;
+            // Get the multiline summary output from the previous step
+            const summary = `${{ steps.generate.outputs.summary_output }}`; 
             
             const fullComment = `
             ### Terraform PR Review (Vertex AI - Gemini) 
