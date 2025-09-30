@@ -48,16 +48,22 @@ jobs:
       - name: Generate summary 
         id: generate
         run: |
-          SCRIPT_OUTPUT=$(
-            python ./scripts/generate_summary.py
-          )
+          SCRIPT_OUTPUT_TEMP="script_output.txt"
           
-          echo "Script Output:"
-          echo "$SCRIPT_OUTPUT"
+          python ./scripts/generate_summary.py > "$SCRIPT_OUTPUT_TEMP" 2>&1
           
-          SUMMARY=$(echo "$SCRIPT_OUTPUT" | grep '^summary=' | sed 's/^summary=//')
+          echo "Script Execution Logs:"
+          cat "$SCRIPT_OUTPUT_TEMP"
           
-          echo "summary_output=$SUMMARY" >> $GITHUB_OUTPUT
+          SUMMARY=$(awk '/^summary=/{flag=1; next} flag' "$SCRIPT_OUTPUT_TEMP")
+          
+          SUMMARY_HEADER=$(grep '^summary=' "$SCRIPT_OUTPUT_TEMP" | sed 's/^summary=//')
+          
+          echo "summary_output<<EOF_SUMMARY" >> $GITHUB_OUTPUT
+          echo "$SUMMARY_HEADER" >> $GITHUB_OUTPUT 
+          echo "" >> $GITHUB_OUTPUT
+          echo "$SUMMARY" >> $GITHUB_OUTPUT
+          echo "EOF_SUMMARY" >> $GITHUB_OUTPUT
 
         env:
           GOOGLE_CLOUD_PROJECT: ${{ secrets.GCP_PROJECT_ID }}
