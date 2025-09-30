@@ -63,8 +63,6 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
-            // CRITICAL: Access the output using the steps context
-            // steps.<step_id>.outputs.<output_name>
             const summary = '${{ steps.generate.outputs.summary_output }}';
             
             const fullComment = `
