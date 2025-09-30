@@ -1,60 +1,61 @@
 import os
 import json
-import hcl2
-# *** NEW IMPORTS FOR VERTEX AI ***
 import vertexai 
-from vertexai.generative_models import GenerativeModel, Content, Part, Tool, FunctionDeclaration, GenerationConfig
-from subprocess import run, CalledProcessError, PIPE
+from vertexai.generative_models import GenerativeModel
+import traceback 
+import warnings 
 
-def parse_terraform_code(path="."):
-    resources = []
-    # ... (rest of your parsing logic remains the same)
+def read_terraform_code(path="."):
+    filepath = os.path.join(path, filename)
+    print(f"--- Attempting to read raw file: {filepath} ---")
+    
+    all_code = ""
+    found_tf = False
+    
     for root, _, files in os.walk(path):
         for file in files:
             if file.endswith('.tf'):
                 filepath = os.path.join(root, file)
-                with open(filepath, 'r') as f:
-                    try:
-                        parsed_content = hcl2.load(f)
-                        if 'resource' in parsed_content:
-                            # Handling hcl2 structure to flatten resources
-                            for resource_block in parsed_content.get('resource', []):
-                                for resource_type, resource_blocks in resource_block.items():
-                                    for resource_name, attributes in resource_blocks.items():
-                                        resources.append({
-                                            'type': resource_type,
-                                            'name': resource_name,
-                                            'attributes': attributes[0]
-                                        })
-                    except Exception as e:
-                        # Improved error handling for parsing
-                        print(f"Error parsing {filepath}: {e}")
-    return resources
+                print(f"--- Reading: {filepath} ---")
+                found_tf = True
+                try:
+                    with open(filepath, 'r') as f:
+                        all_code += f.read() + "\n\n"
+                except Exception as e:
+                    print(f"\n!!! FILE READ FAILED FOR {filepath} !!!")
+                    traceback.print_exc() 
+                    continue
 
-def get_llm_summary(resources):
+    if not found_tf:
+        print("!!! NO .tf FILES FOUND !!!")
+        return None
+    
+    return all_code.strip()
+
+
+def get_llm_summary(raw_tf_code):
+    
+    warnings.filterwarnings("ignore", category=UserWarning)
+    
     try:
-        # 1. Initialize Vertex AI
-        # This automatically uses the Service Account credentials provided by the GitHub Action
         vertexai.init(
             project=os.environ['GOOGLE_CLOUD_PROJECT'],
             location='us-east4'
         )
-        
-        # 2. Instantiate the Generative Model (using the correct import)
         model = GenerativeModel("gemini-2.0-flash")
 
-        # Create a detailed prompt for the LLM
         prompt = f"""
-        You are a cloud infrastructure expert. Your task is to generate a concise summary of the following Terraform code changes. The summary should be easy for a human to understand and should highlight the resources being created and their key configuration details.
+        You are a cloud infrastructure expert. Your task is to generate a concise summary of the following Terraform code. The summary must be easy for a human to understand and **must highlight all resources being created and their key configuration details.**
 
-        Here is the structured data from the Terraform code:
+        Here is the raw Terraform code to analyze:
 
-        {json.dumps(resources, indent=2)}
+        ```terraform
+        {raw_tf_code}
+        ```
 
         Generate the summary in a clear, bulleted list format.
         """
 
-        # Generate the content and return the text
         response = model.generate_content(prompt)
         return response.text.strip()
         
@@ -63,13 +64,18 @@ def get_llm_summary(resources):
 
 def main():
 
-    # 1. Parse Terraform files
-    resources_data = parse_terraform_code()
+    print("Starting Terraform analysis...")
+    # Read all .tf files in the parent directory
+    raw_code = read_terraform_code(path="..") 
     
-    # 2. Get LLM summary
-    llm_summary = get_llm_summary(resources_data)
+    if not raw_code:
+        print("Skipping LLM summary because no valid code was read.")
+        llm_summary = "No valid Terraform code was found to summarize. Please ensure your configuration files are present."
+    else:
+        print("Contacting Vertex AI for summary...")
+        llm_summary = get_llm_summary(raw_code)
 
-    print(f"summary={llm_summary}")
+    print(f"\nsummary={llm_summary}")
 
 if __name__ == "__main__":
     main()
