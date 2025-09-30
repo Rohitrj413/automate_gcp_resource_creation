@@ -20,7 +20,7 @@ jobs:
       - name: List Files
         run: |
          pwd
-         ls -larth
+         ls -larth *.tf | awk '{print $NF}'
 
       - name: Set up Python
         uses: actions/setup-python@v4
