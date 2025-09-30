@@ -46,24 +46,28 @@ jobs:
           # The service account must have the 'Vertex AI User' role on the project
 
       - name: Generate summary 
-        id: generate 
+        id: generate
         run: |
           SCRIPT_OUTPUT=$(
             python ./scripts/generate_summary.py
           )
+          
           echo "Script Output:"
-          echo "$SCRIPT_OUTPUT".
+          echo "$SCRIPT_OUTPUT"
+          
           SUMMARY=$(echo "$SCRIPT_OUTPUT" | grep '^summary=' | sed 's/^summary=//')
+          
           echo "summary_output=$SUMMARY" >> $GITHUB_OUTPUT
 
         env:
           GOOGLE_CLOUD_PROJECT: ${{ secrets.GCP_PROJECT_ID }}
 
-      - name: Post comment to PR
+      - name: Post comment to PR 
         uses: actions/github-script@v6
         with:
           script: |
-            const summary = '${{ steps.generate.outputs.summary_output }}';
+            // CRITICAL: Access the output using the steps context
+            const summary = `${{ steps.generate.outputs.summary_output }}`;
             
             const fullComment = `
             ### Terraform PR Review (Vertex AI - Gemini) 
