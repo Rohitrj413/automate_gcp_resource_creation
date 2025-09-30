@@ -5,7 +5,7 @@ from vertexai.generative_models import GenerativeModel
 import traceback 
 import warnings 
 
-def read_terraform_code(path="."):
+def read_terraform_code(path=".", filename="main.tf"):
     filepath = os.path.join(path, filename)
     print(f"--- Attempting to read raw file: {filepath} ---")
     
@@ -66,7 +66,7 @@ def main():
 
     print("Starting Terraform analysis...")
     # Read all .tf files in the parent directory
-    raw_code = read_terraform_code(path="..") 
+    raw_code = read_terraform_code(path="..", filename="main.tf") 
     
     if not raw_code:
         print("Skipping LLM summary because no valid code was read.")
