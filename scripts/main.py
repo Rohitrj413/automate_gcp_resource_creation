@@ -2,7 +2,7 @@ import os
 import vertexai
 from vertexai.generative_models import GenerativeModel
 import warnings
-from flask import jsonify, request # flask is required for Cloud Functions/Run
+from flask import jsonify, request 
 
 # --- Core Logic: Summarize Code using Gemini ---
 def get_llm_summary(raw_tf_code):
