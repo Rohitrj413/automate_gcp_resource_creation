@@ -49,8 +49,8 @@ jobs:
       run: |
         gcloud functions deploy line_sfmc_outbound_api_handler \
           --runtime python312 \
-          --project "cp-gaa-prod-maa-gravityhub" \
-          --source ./cloudfunctions/pr-summary \
+          --project "cp-sandbox-rohitvyankt-jagt904" \
+          --source ./scripts \
           --region "us-east4" \
           --entry-point sfmc_user_check \
           --service-account "vertexaiuser@cp-sandbox-rohitvyankt-jagt904.iam.gserviceaccount.com" \
