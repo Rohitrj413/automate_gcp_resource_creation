@@ -53,7 +53,6 @@ jobs:
           --source ./cloudfunctions/pr-summary \
           --region "us-east4" \
           --entry-point sfmc_user_check \
-          --env-vars-file ./cloud-run-function/python/runtime-env.yml \
           --service-account "vertexaiuser@cp-sandbox-rohitvyankt-jagt904.iam.gserviceaccount.com" \
           --build-service-account="projects/cp-sandbox-rohitvyankt-jagt904/serviceAccounts/cloud-build-sa@cp-sandbox-rohitvyankt-jagt904.iam.gserviceaccount.com" 
           --trigger-http
