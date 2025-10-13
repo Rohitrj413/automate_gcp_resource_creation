@@ -18,15 +18,25 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      - name: List Files
+        run: |
+         pwd
+         ls -larth *.tf | awk '{print $NF}'
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.12' 
+          python-version: '3.11'
 
       - name: Install dependencies
         run: |
-          # Install the Vertex AI SDK and Flask (Flask is needed by the script itself)
-          pip3 install --upgrade --user "google-cloud-aiplatform>=1.60.0" flask google-auth
+          # Install the specific Vertex AI package version as requested
+          pip3 install --upgrade --user "google-cloud-aiplatform>=1.60.0" 
+          pip3 install google-generativeai
+          pip3 install flask
+          pip3 install python-hcl2
+          # Also install the necessary auth library for the SDK
+          pip3 install google-auth
 
       - name: Authenticate with Google Cloud
         id: 'auth'
@@ -34,36 +44,26 @@ jobs:
         with:
           # Use your GCP Service Account secret for secure authentication
           credentials_json: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
+          # The service account must have the 'Vertex AI User' role on the project
 
-      - name: Generate Summary and Capture Output
+      - name: Generate summary
         id: generate
         run: |
-          # 1. Execute the Python script. The script's final print() is the output.
-          SUMMARY_OUTPUT=$(python ./scripts/main.py)
-          
-          # Set the summary as a multi-line output variable
-          echo "SUMMARY<<EOF" >> $GITHUB_OUTPUT
-          echo "$SUMMARY_OUTPUT" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+          # Run the Python script
+           python ./scripts/main.py
         env:
-          # Pass the project ID as an environment variable for the Python script to use
           GOOGLE_CLOUD_PROJECT: ${{ secrets.GCP_PROJECT_ID }}
-
+          
       - name: Post comment to PR
         uses: actions/github-script@v6
         with:
           script: |
-            // Access the output variable set in the previous 'generate' step
-            const summary = context.steps.generate.outputs.SUMMARY;
-            
+            const summary = process.env.SUMMARY;
             const fullComment = `
-            ### Terraform PR Review (Powered by Gemini)
-            
-            **Summary of Infrastructure Changes:**
-            
+            ### Terraform PR Review (Vertex AI)
+            **Summary of Changes:**
             ${summary}
             `;
-            
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
