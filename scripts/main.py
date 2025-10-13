@@ -108,5 +108,4 @@ if __name__ == "__main__":
     else:
         llm_summary, _ = get_llm_summary(raw_code)
 
-    # CRITICAL: Print only the summary for the workflow to capture
     print(llm_summary)
