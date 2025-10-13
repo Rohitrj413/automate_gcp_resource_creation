@@ -1,0 +1,4 @@
+google-cloud-aiplatform>=1.60.0
+google-generativeai
+python-hcl2
+google-auth
