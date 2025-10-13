@@ -54,7 +54,7 @@ jobs:
         with:
           script: |
             // Access the output variable set in the previous 'generate' step
-            const summary = steps.generate.outputs.SUMMARY;
+            const summary = context.steps.generate.outputs.SUMMARY;
             
             const fullComment = `
             ### Terraform PR Review (Powered by Gemini)
