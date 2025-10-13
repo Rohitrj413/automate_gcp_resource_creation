@@ -33,6 +33,7 @@ jobs:
           # Install the specific Vertex AI package version as requested
           pip3 install --upgrade --user "google-cloud-aiplatform>=1.60.0" 
           pip3 install google-generativeai
+          pip3 install flask
           pip3 install python-hcl2
           # Also install the necessary auth library for the SDK
           pip3 install google-auth
