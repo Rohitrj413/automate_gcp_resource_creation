@@ -50,7 +50,7 @@ jobs:
         id: generate
         run: |
           # Run the Python script
-           python ./scripts/generate_summary.py
+           python ./scripts/main.py
         env:
           GOOGLE_CLOUD_PROJECT: ${{ secrets.GCP_PROJECT_ID }}
           
