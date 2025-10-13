@@ -34,16 +34,13 @@ jobs:
 
     - id: auth
       name: Authenticate to Google Cloud
-      uses: google-github-actions/auth@v1
+      uses: google-github-actions/auth@v2
       with:
         credentials_json: ${{ secrets.SA_DEPLOY }}
 
     - name: 'Set up Cloud SDK'
       uses: google-github-actions/setup-gcloud@v2
 
-    # This deployment use nodejs runtime and associated source code
-    # For python function, use the same steps with python runtime and associated source code path
-    # Replace the service account with the one you want to use for the function
     - name: 'Deploy PR Summary Cloud Function'
       id: deploy-gen-2
       run: |
