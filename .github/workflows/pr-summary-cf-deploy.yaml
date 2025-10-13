@@ -47,4 +47,4 @@ jobs:
     - name: 'Deploy PR Summary Cloud Function'
       id: deploy-gen-2
       run: |
-          gcloud functions deploy line_sfmc_outbound_api_handler --runtime python312 --project "cp-sandbox-rohitvyankt-jagt904" --source ./scripts --region "us-east4" --entry-point sfmc_user_check --service-account "vertexaiuser@cp-sandbox-rohitvyankt-jagt904.iam.gserviceaccount.com" --build-service-account="projects/cp-sandbox-rohitvyankt-jagt904/serviceAccounts/cloud-build-sa@cp-sandbox-rohitvyankt-jagt904.iam.gserviceaccount.com" --trigger-http
+          gcloud functions deploy line_sfmc_outbound_api_handler --runtime python312 --project "cp-sandbox-rohitvyankt-jagt904" --source ./scripts --region "us-east4" --entry-point sfmc_user_check --service-account "vertexaiuser@cp-sandbox-rohitvyankt-jagt904.iam.gserviceaccount.com" --build-service-account="projects/cp-sandbox-rohitvyankt-jagt904/serviceAccounts/cloud-build-sa@cp-sandbox-rohitvyankt-jagt904.iam.gserviceaccount.com" --trigger-http --source-file generate_summary.py
