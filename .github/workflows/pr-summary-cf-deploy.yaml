@@ -1,0 +1,59 @@
+name: pr-summary-cloud-run-function-deploy
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+    - 'main'  # only when merged
+    # - 'develop'
+    paths:
+    - 'scripts/**'  # only when changes in cloud-run-function directory
+    - '.github/workflows/pr-summary-cf-deploy.yaml'
+  push:
+    branches:
+    - 'main'
+    
+    paths:
+    - 'scripts/**'  # only when changes in cloud-run-function directory
+    - '.github/workflows/pr-summary-cf-deploy.yaml'
+
+permissions:
+  id-token: write
+  contents: read
+  
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    # This step is required to use nodejs runtime. For pthon use - uses: actions/setup-python@v5
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.12' # Use the same version as your Cloud Function runtime
+
+    - id: auth
+      name: Authenticate to Google Cloud
+      uses: google-github-actions/auth@v1
+      with:
+        credentials_json: ${{ secrets.SA_DEPLOY }}
+
+    - name: 'Set up Cloud SDK'
+      uses: google-github-actions/setup-gcloud@v2
+
+    # This deployment use nodejs runtime and associated source code
+    # For python function, use the same steps with python runtime and associated source code path
+    # Replace the service account with the one you want to use for the function
+    - name: 'Deploy 2nd gen Cloud Run Function'
+      id: deploy-gen-2
+      run: |
+        gcloud functions deploy line_sfmc_outbound_api_handler \
+          --runtime python312 \
+          --project "cp-gaa-prod-maa-gravityhub" \
+          --source ./cloudfunctions/pr-summary \
+          --region "us-east4" \
+          --entry-point sfmc_user_check \
+          --env-vars-file ./cloud-run-function/python/runtime-env.yml \
+          --service-account "vertexaiuser@cp-sandbox-rohitvyankt-jagt904.iam.gserviceaccount.com" \
+          --build-service-account="projects/cp-sandbox-rohitvyankt-jagt904/serviceAccounts/cloud-build-sa@cp-sandbox-rohitvyankt-jagt904.iam.gserviceaccount.com" 
+          --trigger-http
