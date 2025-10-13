@@ -30,7 +30,7 @@ jobs:
     # This step is required to use nodejs runtime. For pthon use - uses: actions/setup-python@v5
     - uses: actions/setup-python@v5
       with:
-        python-version: '3.12' # Use the same version as your Cloud Function runtime
+        python-version: '3.12'
 
     - id: auth
       name: Authenticate to Google Cloud
@@ -47,4 +47,4 @@ jobs:
     - name: 'Deploy PR Summary Cloud Function'
       id: deploy-gen-2
       run: |
-          gcloud functions deploy line_sfmc_outbound_api_handler --runtime python312 --project "cp-sandbox-rohitvyankt-jagt904" --source ./scripts --region "us-east4" --entry-point sfmc_user_check --service-account "vertexaiuser@cp-sandbox-rohitvyankt-jagt904.iam.gserviceaccount.com" --build-service-account="projects/cp-sandbox-rohitvyankt-jagt904/serviceAccounts/cloud-build-sa@cp-sandbox-rohitvyankt-jagt904.iam.gserviceaccount.com" --trigger-http
+          gcloud functions deploy pr_terraform_summary --runtime python312 --project "cp-sandbox-rohitvyankt-jagt904" --source ./scripts --region "us-east4" --entry-point sfmc_user_check --service-account "vertexaiuser@cp-sandbox-rohitvyankt-jagt904.iam.gserviceaccount.com" --build-service-account="projects/cp-sandbox-rohitvyankt-jagt904/serviceAccounts/cloud-build-sa@cp-sandbox-rohitvyankt-jagt904.iam.gserviceaccount.com" --trigger-http
