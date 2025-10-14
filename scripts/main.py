@@ -3,7 +3,7 @@ import vertexai
 from vertexai.generative_models import GenerativeModel
 import warnings
 from flask import jsonify, request 
- 
+
 # --- Core Logic: Summarize Code using Gemini ---
 def get_llm_summary(raw_tf_code):
     """Initializes Vertex AI and calls the Gemini model to summarize the code."""
