@@ -4,13 +4,12 @@ provider "google" {
   region  = "us-east4"
 }
 
-# Define a variable for the project ID
 variable "project_id" {
   description = "cp-sandbox-rohitvyankt-jagt904"
   type        = string
 }
 
-# Create a new Google Compute Engine instance
+# Required tags: Environment (must be Dev, Stage, or Prod) and Service
 resource "google_compute_instance" "my_web_server" {
   name         = "web-server-instance"
   machine_type = "e2-micro"
@@ -28,11 +27,21 @@ resource "google_compute_instance" "my_web_server" {
       # This block is required to give the instance a public IP address
     }
   }
+  
+  labels = {
+    Environment = "Dev"  # Set to one of the mandatory values (Dev, Stage, Prod)
+    Service     = "WebServer" # Set to the required Service tag
+  }
 }
 
-# Create a Google Cloud Storage bucket
+# Required tags: Environment (must be Dev, Stage, or Prod) and Service
 resource "google_storage_bucket" "my_data_bucket" {
   name          = "my-unique-data-bucket-${var.project_id}"
   location      = "US-EAST4"
   storage_class = "STANDARD"
+
+  labels = {
+    Environment = "Dev"  # Set to one of the mandatory values (Dev, Stage, Prod)
+    Service     = "DataStorage" # Set to the required Service tag
+  }
 }
