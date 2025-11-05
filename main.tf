@@ -8,7 +8,6 @@ variable "project_id" {
   type        = string
 }
 
-# Required tags: Environment (must be Dev, Stage, or Prod) and Service
 resource "google_compute_instance" "my_web_server" {
   name         = "web-server-instance"
   machine_type = "e2-micro"
