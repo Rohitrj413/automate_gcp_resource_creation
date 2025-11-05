@@ -24,7 +24,7 @@ jobs:
         # You can set the API key here at the step level for better security/scoping
         env:
           # This references the secret you created in GitHub Settings
-          INFRACOST_API_KEY: ${{ secrets.INFRACOST_API_KEY }} 
+          INFRACOST_API_KEY: ${{ secrets.SELF_HOSTED_INFRACOST_API_KEY }} 
         run: |
           # Use the environment variables in the command
           infracost breakdown --path=.
