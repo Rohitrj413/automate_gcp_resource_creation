@@ -1,0 +1,30 @@
+name: Infracost CI
+
+on:
+  pull_request:
+    paths:
+      - '**.tf' # Only run when Terraform files change
+
+jobs:
+  infracost_breakdown:
+    runs-on: ubuntu-latest
+
+    # Set the non-sensitive endpoint for the entire job
+    env:
+      INFRACOST_PRICING_API_ENDPOINT: https://endpointexport 
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Infracost
+        uses: infracost/actions/setup@v2
+
+      - name: Run Infracost breakdown
+        # You can set the API key here at the step level for better security/scoping
+        env:
+          # This references the secret you created in GitHub Settings
+          INFRACOST_API_KEY: ${{ secrets.INFRACOST_API_KEY }} 
+        run: |
+          # Use the environment variables in the command
+          infracost breakdown --path=.
